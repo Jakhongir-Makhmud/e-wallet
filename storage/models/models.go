@@ -29,3 +29,8 @@ type WalletHistory struct {
 	TotalExpenseOperations int64  `json:"tatal_expense_operations"`
 	TotalOperations        int64  `json:"total_operations"`
 }
+
+type WalletFill struct {
+	Id string `json:"id"`
+	Amount float64 `json:"amount"`
+}

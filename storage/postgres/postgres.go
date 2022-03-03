@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"e-wallet/storage/models"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -15,6 +16,7 @@ func NewDatabase(db *sqlx.DB) *Database {
 		db: db,
 	}
 }
+
 // This method returs balance of the wallet
 func (d Database) GetBalance(w models.Wallet) (*models.Wallet, error) {
 
@@ -26,28 +28,29 @@ func (d Database) GetBalance(w models.Wallet) (*models.Wallet, error) {
 	}
 	return &models.Wallet{w.Id, w.Balance}, nil
 }
+
 // This method checks wheather wallet exists or not, if not it returns error and Wallet with null fields
 func (d Database) CheckWalletExists(w models.Wallet) (*models.Wallet, error) {
 	var exists int
 	query := `select count(*) where wallet_id = $1 and delted_at is null`
-	err := d.db.QueryRow(query,w.Id).Scan(&exists)
+	err := d.db.QueryRow(query, w.Id).Scan(&exists)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 
 	if exists != 1 {
-		return &models.Wallet{Id: "",Balance: 0},err
+		return &models.Wallet{Id: "", Balance: 0}, err
 	}
 
 	return d.GetBalance(w)
 }
 
 // This method returns total operations and total expense and total income for current month
-func (d Database) GetTotals(w models.Wallet) (*models.WalletHistory,error) {
+func (d Database) GetTotals(w models.Wallet) (*models.WalletHistory, error) {
 	var walletHistory = models.WalletHistory{}
-	query := `SELECT balance, SUM(wi.amount),SUM(we.amount),COUNT(wi.amount),COUNT(we.amount) FROM wallets w JOIN wallets_income wi USING(wallet_id) JOIN wallets_expenses we USING(wallet_id) GROUP BY wallet_id having wallet_id = $1`
+	query := `SELECT balance, SUM(wi.amount),SUM(we.amount),COUNT(wi.amount),COUNT(we.amount) FROM wallets w JOIN wallets_income wi USING(wallet_id) JOIN wallets_expenses we USING(wallet_id) GROUP BY wallet_id having wallet_id = $1 and month(we.created_at) = month(now()) and month(wi.created_at) = month(now())`
 
-	err := d.db.DB.QueryRow(query,w.Id).Scan(
+	err := d.db.DB.QueryRow(query, w.Id).Scan(
 		&walletHistory.CurrentBalance,
 		&walletHistory.TotalIncome,
 		&walletHistory.TotalExpense,
@@ -56,13 +59,41 @@ func (d Database) GetTotals(w models.Wallet) (*models.WalletHistory,error) {
 	)
 
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 
 	walletHistory.Id = w.Id
 	walletHistory.TotalOperations = walletHistory.TotalExpenseOperations + walletHistory.TotalIncomeOperations
 
-	return &walletHistory,nil
+	return &walletHistory, nil
 
 }
 
+// This method is used to FillWallet
+func (d Database) FillWallet(w models.WalletFill) (*models.Wallet,error) {
+
+	queryWallet := `UPDATE wallets SET balance = balance + $2, updated_at = $3 WHERE wallet_id = $1 AND deleted_at deleted_at IS NULL`
+	queryIncome := `INSERT INTO wallets_income (income_id,wallet_id,amount,created_at) values ($1,$2,$3,$4)`
+
+	tx,err := d.db.Begin()
+	if err != nil {
+		return nil,err
+	}
+
+	now := time.Now().Format(time.RFC3339)
+
+	_, err = tx.Exec(queryWallet,w.Id,w.Amount,now)
+	if err != nil {
+		tx.Rollback()
+		return nil,err
+	}
+
+	_,err = tx.Exec(queryIncome)
+	if err != nil {
+		tx.Rollback()
+		return nil,err
+	}
+
+	return d.GetBalance(models.Wallet{Id: w.Id})
+
+}
