@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS users (
     last_name VARCHAR(64) NOT NULL,
     email VARCHAR(128) NOT NULL,
     phone VARCHAR(20),
+    is_indentified BOOLEAN DEFAULT false,
     created_at TIMESTAMP NOT NULL,
     deleted_at TIMESTAMP DEFAULT NULL,
     updated_at TIMESTAMP DEFAULT NULL

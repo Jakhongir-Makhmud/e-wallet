@@ -2,9 +2,15 @@ package postgres
 
 import (
 	"e-wallet/storage/models"
+	"fmt"
 	"time"
 
 	"github.com/jmoiron/sqlx"
+)
+
+const (
+	Limit        float64 = 100000
+	LimitNotIden float64 = 10000
 )
 
 type Database struct {
@@ -71,7 +77,28 @@ func (d Database) GetTotals(w models.Wallet) (*models.WalletHistory, error) {
 
 // This method is used to FillWallet
 func (d Database) FillWallet(w models.WalletFill) (*models.Wallet, error) {
+	isIdentified, err := d.isIdentified(w.Id)
+	if err != nil {
+		return nil, err
+	}
 
+	wallet, err := d.GetBalance(models.Wallet{Id: w.Id})
+
+	currentBalance := wallet.Balance + w.Amount
+
+	if !isIdentified {
+		if currentBalance > LimitNotIden {
+			return nil, fmt.Errorf("You are not identified user, so your limit is %v", LimitNotIden)
+		}
+	}
+
+	if currentBalance > Limit {
+		return nil, fmt.Errorf("Your limit is %v", Limit)
+	}
+
+	if isIdentified == false {
+		return nil, nil
+	}
 	queryWallet := `UPDATE wallets SET balance = balance + $2, updated_at = $3 WHERE wallet_id = $1 AND deleted_at deleted_at IS NULL`
 	queryIncome := `INSERT INTO wallets_income (income_id,wallet_id,amount,created_at) values ($1,$2,$3,$4)`
 
@@ -96,4 +123,15 @@ func (d Database) FillWallet(w models.WalletFill) (*models.Wallet, error) {
 
 	return d.GetBalance(models.Wallet{Id: w.Id})
 
+}
+
+func (d Database) isIdentified(id string) (bool, error) {
+	query := `SELECT is_identified FROM wallets WHERE wallet_id = $1`
+	var isIdentified bool
+	err := d.db.QueryRow(query, id).Scan(&isIdentified)
+	if err != nil {
+		return false, err
+	}
+
+	return isIdentified, nil
 }
