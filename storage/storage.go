@@ -6,8 +6,6 @@ import (
 	"e-wallet/storage/postgres"
 )
 
-
-
 type storagePool struct {
 	db *sqlx.DB
 	storage *postgres.Database
