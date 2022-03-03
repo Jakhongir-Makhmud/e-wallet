@@ -26,7 +26,7 @@ func (d Database) GetBalance(w models.Wallet) (*models.Wallet, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &models.Wallet{w.Id, w.Balance}, nil
+	return &models.Wallet{Id: w.Id, Balance: w.Balance}, nil
 }
 
 // This method checks wheather wallet exists or not, if not it returns error and Wallet with null fields
@@ -70,28 +70,28 @@ func (d Database) GetTotals(w models.Wallet) (*models.WalletHistory, error) {
 }
 
 // This method is used to FillWallet
-func (d Database) FillWallet(w models.WalletFill) (*models.Wallet,error) {
+func (d Database) FillWallet(w models.WalletFill) (*models.Wallet, error) {
 
 	queryWallet := `UPDATE wallets SET balance = balance + $2, updated_at = $3 WHERE wallet_id = $1 AND deleted_at deleted_at IS NULL`
 	queryIncome := `INSERT INTO wallets_income (income_id,wallet_id,amount,created_at) values ($1,$2,$3,$4)`
 
-	tx,err := d.db.Begin()
+	tx, err := d.db.Begin()
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 
 	now := time.Now().Format(time.RFC3339)
 
-	_, err = tx.Exec(queryWallet,w.Id,w.Amount,now)
+	_, err = tx.Exec(queryWallet, w.Id, w.Amount, now)
 	if err != nil {
 		tx.Rollback()
-		return nil,err
+		return nil, err
 	}
 
-	_,err = tx.Exec(queryIncome)
+	_, err = tx.Exec(queryIncome)
 	if err != nil {
 		tx.Rollback()
-		return nil,err
+		return nil, err
 	}
 
 	return d.GetBalance(models.Wallet{Id: w.Id})

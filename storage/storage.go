@@ -1,13 +1,14 @@
 package storage
 
 import (
-	"github.com/jmoiron/sqlx"
-	"e-wallet/storage/repo"
 	"e-wallet/storage/postgres"
+	"e-wallet/storage/repo"
+
+	"github.com/jmoiron/sqlx"
 )
 
 type storagePool struct {
-	db *sqlx.DB
+	db      *sqlx.DB
 	storage *postgres.Database
 }
 
@@ -17,7 +18,7 @@ type StorageI interface {
 
 func NewStorage(db *sqlx.DB) *storagePool {
 	return &storagePool{
-		db: db,
+		db:      db,
 		storage: postgres.NewDatabase(db),
 	}
 }
@@ -25,4 +26,3 @@ func NewStorage(db *sqlx.DB) *storagePool {
 func (s *storagePool) Storage() *postgres.Database {
 	return s.storage
 }
-
