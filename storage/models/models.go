@@ -17,14 +17,14 @@ type NotIdentifiedUser struct {
 
 type Wallet struct {
 	Id      string `json:"id"`
-	Balance string `json:"balance"`
+	Balance float64 `json:"balance"`
 }
 
 type WalletHistory struct {
 	Id                     string `json:"id"`
-	CurrentBalance         string `json:"current_balance"`
-	TotalIncome            string `json:"total_income"`
-	TotalExpense           string `json:"total_expense"`
+	CurrentBalance         float64 `json:"current_balance"`
+	TotalIncome            float64 `json:"total_income"`
+	TotalExpense           float64 `json:"total_expense"`
 	TotalIncomeOperations  int64  `json:"total_income_operations"`
 	TotalExpenseOperations int64  `json:"tatal_expense_operations"`
 	TotalOperations        int64  `json:"total_operations"`
