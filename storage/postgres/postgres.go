@@ -78,7 +78,7 @@ func (d Database) GetHistory(w models.Wallet) (*models.WalletHistory, error) {
 
 // This method is used to Fill Wallet
 func (d Database) FillWallet(w models.WalletFill) (*models.Wallet, error) {
-	isIdentified, err := d.isIdentified(w.Id)
+	isIdentified, err := d.isUserIdentified(w.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +86,7 @@ func (d Database) FillWallet(w models.WalletFill) (*models.Wallet, error) {
 	wallet, err := d.GetBalance(models.Wallet{Id: w.Id})
 
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 
 	currentBalance := wallet.Balance + w.Amount
@@ -130,25 +130,25 @@ func (d Database) FillWallet(w models.WalletFill) (*models.Wallet, error) {
 
 }
 // This mehtod is used to check user via email address wheather we have such user or not, if yes the result is true
-func (d Database) CheckUser(email string) (bool,error) {
+func (d Database) CheckUser(email string) (bool, error) {
 	query := `SELECT COUNT(*) WHERE email = $1`
 	email = strings.TrimSpace(email)
 	var isExists int
-	err := d.db.QueryRow(query,email).Scan(&isExists)
+	err := d.db.QueryRow(query, email).Scan(&isExists)
 
 	if err != nil {
-		return false,err
+		return false, err
 	}
 
 	if isExists == 1 {
-		return true,nil
+		return true, nil
 	}
 
-	return false,nil
+	return false, nil
 }
 
 // This method checks where user is identified or not
-func (d Database) isIdentified(id string) (bool, error) {
+func (d Database) isUserIdentified(id string) (bool, error) {
 	query := `SELECT is_identified FROM wallets WHERE wallet_id = $1`
 	var isIdentified bool
 	err := d.db.QueryRow(query, id).Scan(&isIdentified)
@@ -158,18 +158,58 @@ func (d Database) isIdentified(id string) (bool, error) {
 
 	return isIdentified, nil
 }
+
 // This method checks wheather do we have such user or not, if not result is false
-func (d Database) CheckUserById(id string) (bool,error) {
+func (d Database) CheckUserById(id string) (bool, error) {
 	var count int
 	query := `SELECT COUNT(*) FROM users WHERE user_id = $1 AND deleted_at IS NULL`
-	err := d.db.QueryRow(query,id).Scan(&count)
+	err := d.db.QueryRow(query, id).Scan(&count)
 
 	if err != nil {
-		return false,err
+		return false, err
 	}
 	if count == 0 {
-		return true,nil
+		return true, nil
 	}
-	return false,nil
+	return false, nil
 
+}
+
+// This method to create new user
+func (d Database) NewUser(u models.User) (*models.User, error) {
+
+	query := `INSERT INTO users (user_id,first_name,last_name,email,created_at) VALUES (
+		$1,$2,$3,$4,$5
+	)`
+	var (
+		now = time.Now().Format(time.RFC3339)
+		id  string
+	)
+	err := d.db.QueryRow(query, u.Id, u, u.FirstName, u.LastName, u.Email, now).Scan(&id)
+	if err != nil {
+		return nil, err
+	}
+	if id != "" {
+		return &u, nil
+	}
+	return nil, nil
+}
+
+// This method creates new wallet
+func (d Database) NewWallet(nw models.NewWallet) (*models.Wallet,error) {
+	isIden,err := d.isUserIdentified(nw.UserId)
+	if err != nil {
+			return nil,err
+	}
+	now := time.Now().Format(time.RFC3339)
+	query := `INSERT INTO wallets (wallet_id,user_id,is_identified,created_at) VALUES (
+		$1,$2,$3,$4
+	)`
+	_,err = d.db.Exec(query,nw.WalletId,nw.UserId,isIden,now)
+	
+	if err != nil {
+		return nil,err
+	}
+
+	return &models.Wallet{Id: nw.WalletId,Balance: 0},nil
 }

@@ -32,14 +32,14 @@ func main() {
 		Password: "",
 	})
 
-	storagePool := storage.NewStorage(psql)
+	repo := storage.NewStorage(psql).Storage()
 
 	
 	server := api.New(api.Options{
 		Cfg: cfg,
-		Repo: storagePool.Storage(),
+		Repo: repo,
 		Redis: redis,
-		Auth: auth.Auth{Cfg: cfg},
+		Auth: auth.Auth{Cfg: cfg,Repo: repo},
 	})
 
 

@@ -8,6 +8,11 @@ type User struct {
 	PhoneNumber string `json:"phone_number"`
 }
 
+type NewWallet struct {
+	UserId string `json:"user_id"`
+	WalletId string `json:"wallet_id"`
+}
+
 type NotIdentifiedUser struct {
 	Id        string `json:"id"`
 	FirstName string `json:"first_name"`

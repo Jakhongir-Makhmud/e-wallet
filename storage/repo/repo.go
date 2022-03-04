@@ -7,4 +7,5 @@ type Repo interface {
 	CheckWalletExists(w models.Wallet) (*models.Wallet, error)
 	GetHistory(w models.Wallet) (*models.WalletHistory, error)
 	FillWallet(w models.WalletFill) (*models.Wallet, error)
+	CheckUserById(id string) (bool,error)
 }

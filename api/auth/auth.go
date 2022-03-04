@@ -4,6 +4,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha1"
 	"e-wallet/config"
+	"e-wallet/storage/repo"
 	"encoding/hex"
 	"fmt"
 	"io"
@@ -13,13 +14,21 @@ import (
 
 type Auth struct {
 	Cfg config.Config
+	Repo repo.Repo
 }
 
 func (auth Auth) Auth(c *gin.Context) {
 
 	hashSum := c.GetHeader("X-Digest")
-
+	userId := c.GetHeader("X-UserId")
+	
+	// length of hmac-sha1 is 20 bytes, not less not more  
 	if len([]byte(hashSum)) != 20 {
+		c.AbortWithStatus(401)
+		return
+	}
+
+	if userId == "" {
 		c.AbortWithStatus(401)
 		return
 	}
@@ -38,6 +47,16 @@ func (auth Auth) Auth(c *gin.Context) {
 		c.AbortWithStatus(401)
 	}
 
+	isExists,err := auth.Repo.CheckUserById(userId)
+
+	if err != nil {
+		c.AbortWithStatus(401)
+		return
+	}
+	if !isExists {
+		c.AbortWithStatus(401)
+		return
+	}
 }
 
 func (auth Auth) HashBody(body []byte) string {
