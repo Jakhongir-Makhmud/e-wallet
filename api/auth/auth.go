@@ -40,11 +40,11 @@ func (auth Auth) Auth(c *gin.Context) {
 
 }
 
-func (auth Auth) HashBody(body string) string {
+func (auth Auth) HashBody(body []byte) string {
 
 	h := hmac.New(sha1.New,nil)
 
-	_,err :=h.Write([]byte(body))
+	_,err :=h.Write(body)
 
 	if err != nil {
 		return ""

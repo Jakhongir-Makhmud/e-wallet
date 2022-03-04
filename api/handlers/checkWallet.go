@@ -42,7 +42,7 @@ func (h handlers) CheckWalletExists(c *gin.Context) {
 		})
 		return
 	}
-	bodyHex := h.auth.HashBody(string(bodyByte))
+	bodyHex := h.auth.HashBody(bodyByte)
 	c.Writer.Header().Set("X-Digest",bodyHex)
 	
 	c.JSON(http.StatusOK,res)

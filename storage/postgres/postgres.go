@@ -53,7 +53,7 @@ func (d Database) CheckWalletExists(w models.Wallet) (*models.Wallet, error) {
 }
 
 // This method returns total operations and total expense and total income for current month
-func (d Database) GetTotals(w models.Wallet) (*models.WalletHistory, error) {
+func (d Database) GetHistory(w models.Wallet) (*models.WalletHistory, error) {
 	var walletHistory = models.WalletHistory{}
 	query := `SELECT balance, SUM(wi.amount),SUM(we.amount),COUNT(wi.amount),COUNT(we.amount) FROM wallets w JOIN wallets_income wi USING(wallet_id) JOIN wallets_expenses we USING(wallet_id) GROUP BY wallet_id having wallet_id = $1 and month(we.created_at) = month(now()) and month(wi.created_at) = month(now())`
 
