@@ -84,19 +84,23 @@ func (d Database) FillWallet(w models.WalletFill) (*models.Wallet, error) {
 
 	wallet, err := d.GetBalance(models.Wallet{Id: w.Id})
 
+	if err != nil {
+		return nil,err
+	}
+
 	currentBalance := wallet.Balance + w.Amount
 
 	if !isIdentified {
 		if currentBalance > LimitNotIden {
-			return nil, fmt.Errorf("You are not identified user, so your limit is %v", LimitNotIden)
+			return nil, fmt.Errorf("you are not identified user, so your limit is %v", LimitNotIden)
 		}
 	}
 
 	if currentBalance > Limit {
-		return nil, fmt.Errorf("Your limit is %v", Limit)
+		return nil, fmt.Errorf("your limit is %v", Limit)
 	}
 
-	if isIdentified == false {
+	if !isIdentified {
 		return nil, nil
 	}
 	queryWallet := `UPDATE wallets SET balance = balance + $2, updated_at = $3 WHERE wallet_id = $1 AND deleted_at deleted_at IS NULL`
