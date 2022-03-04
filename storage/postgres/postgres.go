@@ -3,6 +3,7 @@ package postgres
 import (
 	"e-wallet/storage/models"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -128,7 +129,25 @@ func (d Database) FillWallet(w models.WalletFill) (*models.Wallet, error) {
 	return d.GetBalance(models.Wallet{Id: w.Id})
 
 }
+// This mehtod is used to check user via email address wheather we have such user or not, if yes the result is true
+func (d Database) CheckUser(email string) (bool,error) {
+	query := `SELECT COUNT(*) WHERE email = $1`
+	email = strings.TrimSpace(email)
+	var isExists int
+	err := d.db.QueryRow(query,email).Scan(&isExists)
 
+	if err != nil {
+		return false,err
+	}
+
+	if isExists == 1 {
+		return true,nil
+	}
+
+	return false,nil
+}
+
+// This method checks where user is identified or not
 func (d Database) isIdentified(id string) (bool, error) {
 	query := `SELECT is_identified FROM wallets WHERE wallet_id = $1`
 	var isIdentified bool
