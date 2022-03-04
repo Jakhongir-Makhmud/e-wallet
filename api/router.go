@@ -16,6 +16,10 @@ type Options struct {
 	Redis *redis.Client
 	Auth  auth.Auth
 }
+// @title E-Wallet 
+// @securitydefinitions.oauth2.accessCode Digest
+// @in header
+// @name Authorization
 
 func New(options Options) *gin.Engine {
 	router := gin.Default()

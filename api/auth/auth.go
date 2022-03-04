@@ -53,3 +53,4 @@ func (auth Auth) HashBody(body []byte) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
+

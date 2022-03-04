@@ -8,7 +8,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-
+// @Summary Check Wallet Existanse
+// @Description By this endpoin you can fill or top-up your wallet
+// @Security Digest
+// @Accept json
+// @Produce json
+// @Param body body models.Wallet true "check wallet existance"
+// @Success 200 {object} models.Wallet
+// @Failure 401 {object} models.Err
+// @Failure 500 {object} models.Err
+// @Router /check/wallet/exist [post]
 func (h handlers) CheckWalletExists(c *gin.Context) {
 
 	body := models.Wallet{}

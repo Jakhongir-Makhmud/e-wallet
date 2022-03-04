@@ -8,6 +8,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+
+// @Summary Get Wallet Balance
+// @Security Digest
+// @Accept json
+// @Produce json
+// @Param body body models.Wallet true "fill wallet"
+// @Success 200 {object} models.Wallet
+// @Failure 401 {object} models.Err
+// @Failure 500 {object} models.Err
+// @Router /wallet/balance [post]
 func (h handlers) GetBalance(c *gin.Context) {
 
 	bodyRequest := models.Wallet{}

@@ -8,7 +8,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-
+// @Summary Get Wallet history
+// @Security Digest
+// @Accept json
+// @Produce json
+// @Param body body models.Wallet true "wallet history"
+// @Success 200 {object} models.WalletHistory
+// @Failure 401 {object} models.Err
+// @Failure 500 {object} models.Err
+// @Router /wallet/history [post]
 func (h handlers) GetHistory(c *gin.Context) {
 
 	bodyRequest := models.Wallet{}
