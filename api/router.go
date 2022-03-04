@@ -25,6 +25,7 @@ func New(options Options) *gin.Engine {
 	router := gin.Default()
 
 	router.Use(gin.Logger())
+	router.Use(options.Auth.Auth)
 
 	handler := handlers.NewHandler(options.Cfg, options.Repo, options.Redis, options.Auth)
 

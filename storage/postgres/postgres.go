@@ -76,7 +76,7 @@ func (d Database) GetHistory(w models.Wallet) (*models.WalletHistory, error) {
 
 }
 
-// This method is used to FillWallet
+// This method is used to Fill Wallet
 func (d Database) FillWallet(w models.WalletFill) (*models.Wallet, error) {
 	isIdentified, err := d.isIdentified(w.Id)
 	if err != nil {
@@ -157,4 +157,19 @@ func (d Database) isIdentified(id string) (bool, error) {
 	}
 
 	return isIdentified, nil
+}
+// This method checks wheather do we have such user or not, if not result is false
+func (d Database) CheckUserById(id string) (bool,error) {
+	var count int
+	query := `SELECT COUNT(*) FROM users WHERE user_id = $1 AND deleted_at IS NULL`
+	err := d.db.QueryRow(query,id).Scan(&count)
+
+	if err != nil {
+		return false,err
+	}
+	if count == 0 {
+		return true,nil
+	}
+	return false,nil
+
 }
