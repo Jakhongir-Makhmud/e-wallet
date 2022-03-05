@@ -37,6 +37,7 @@ type WalletHistory struct {
 
 type WalletFill struct {
 	Id string `json:"id"`
+	UserId string `json:"user_id"`
 	Amount float64 `json:"amount"`
 }
 

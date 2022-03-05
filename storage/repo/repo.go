@@ -8,4 +8,6 @@ type Repo interface {
 	GetHistory(w models.Wallet) (*models.WalletHistory, error)
 	FillWallet(w models.WalletFill) (*models.Wallet, error)
 	CheckUserById(id string) (bool,error)
+	NewUser(u models.User) (*models.User, error)
+	NewWallet(nw models.NewWallet) (*models.Wallet,error)
 }

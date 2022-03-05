@@ -1,0 +1,159 @@
+definitions:
+  models.Err:
+    properties:
+      error:
+        type: string
+    type: object
+  models.Wallet:
+    properties:
+      balance:
+        type: number
+      id:
+        type: string
+    type: object
+  models.WalletFill:
+    properties:
+      amount:
+        type: number
+      id:
+        type: string
+    type: object
+  models.WalletHistory:
+    properties:
+      current_balance:
+        type: number
+      id:
+        type: string
+      tatal_expense_operations:
+        type: integer
+      total_expense:
+        type: number
+      total_income:
+        type: number
+      total_income_operations:
+        type: integer
+      total_operations:
+        type: integer
+    type: object
+info:
+  contact: {}
+  title: E-Wallet
+paths:
+  /check/wallet/exist:
+    post:
+      consumes:
+      - application/json
+      description: By this endpoin you can fill or top-up your wallet
+      parameters:
+      - description: check wallet existance
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.Wallet'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Wallet'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Err'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Err'
+      security:
+      - Digest: []
+      summary: Check Wallet Existanse
+  /wallet/balance:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: fill wallet
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.Wallet'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Wallet'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Err'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Err'
+      security:
+      - Digest: []
+      summary: Get Wallet Balance
+  /wallet/fill:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: fill wallet
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.WalletFill'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Wallet'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Err'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Err'
+      security:
+      - Digest: []
+      summary: Fill Wallet
+  /wallet/history:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: wallet history
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.Wallet'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.WalletHistory'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Err'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Err'
+      security:
+      - Digest: []
+      summary: Get Wallet history
+swagger: "2.0"
